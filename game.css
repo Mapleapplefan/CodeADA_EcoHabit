@@ -1,0 +1,9 @@
+h1 {
+    text-align: center;
+}
+#game {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    border-color: green;
+}
