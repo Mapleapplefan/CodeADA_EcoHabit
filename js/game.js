@@ -21,25 +21,22 @@ let cursors;
 const game = new Phaser.Game(config);
 
 function preload() {
-  this.load.tilemapTiledJSON('map', 'assets/tilemaps/map.tmj');
+  this.load.tilemapTiledJSON('map', './assets/tilemaps/map.tmj');
 
   // Load all the tileset images that your map uses
-  this.load.image('building', 'assets/tilesets/building.png');
-  this.load.image('main', 'assets/tilesets/Courtyard.png');
-  this.load.image('Roads', 'assets/tilesets/Roads.png');
+  this.load.image('building', './assets/tilesets/building.png');
+  this.load.image('main', './assets/tilesets/Courtyard.png');
+  this.load.image('Roads', './assets/tilesets/Roads.png');
 
   // Load your player sprite
-  this.load.spritesheet('player', 'assets/sprites/player.png', {
+  this.load.spritesheet('player', './assets/sprites/player.png', {
     frameWidth: 32,
     frameHeight: 32
   });
 }
 
 function create() {
-  // Load tilemap
-//   const map = this.make.tilemap({ key: 'map' });
-// const map = this.make.tilemap({ key: "map" });
-    const map = this.add.tilemap("map");
+const map = this.make.tilemap({ key: "map" });
   const tiles = map.addTilesetImage("main", "tiles");
   const groundLayer = map.createLayer("ground", tiles, 0, 0);
 
@@ -50,11 +47,11 @@ function create() {
 }
 
 function update() {
-//   player.setVelocity(0);
+  player.setVelocity(0);
 
-//   if (cursors.left.isDown) player.setVelocityX(-100);
-//   else if (cursors.right.isDown) player.setVelocityX(100);
+  if (cursors.left.isDown) player.setVelocityX(-100);
+  else if (cursors.right.isDown) player.setVelocityX(100);
 
-//   if (cursors.up.isDown) player.setVelocityY(-100);
-//   else if (cursors.down.isDown) player.setVelocityY(100);
+  if (cursors.up.isDown) player.setVelocityY(-100);
+  else if (cursors.down.isDown) player.setVelocityY(100);
 }
