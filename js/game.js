@@ -36,33 +36,25 @@ function preload() {
 }
 
 function create() {
-  const map = this.make.tilemap({ key: 'map' });
+  // Load tilemap
+//   const map = this.make.tilemap({ key: 'map' });
+// const map = this.make.tilemap({ key: "map" });
+    const map = this.add.tilemap("map");
+  const tiles = map.addTilesetImage("main", "tiles");
+  const groundLayer = map.createLayer("ground", tiles, 0, 0);
 
-  // Add all the tilesets the map expects
-  const buildingTiles = map.addTilesetImage('building', 'building');
-  const mainTiles = map.addTilesetImage('main', 'main');
-  const roadsTiles = map.addTilesetImage('Roads', 'Roads');
-
-  // Combine them into one array (so Phaser can use them across layers)
-  const allTiles = [buildingTiles, mainTiles, roadsTiles];
-
-  // Create each layer by its name in Tiled
-  const groundLayer = map.createLayer('ground', allTiles, 0, 0);
-  const buildingLayer = map.createLayer('building', allTiles, 0, 0);
-  const treesLayer = map.createLayer('trees', allTiles, 0, 0);
-
-  // Add player and controls
-  player = this.physics.add.sprite(100, 100, 'player');
+  player = this.physics.add.sprite(100, 100, "player");
   player.setCollideWorldBounds(true);
+
   cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
-  player.setVelocity(0);
+//   player.setVelocity(0);
 
-  if (cursors.left.isDown) player.setVelocityX(-100);
-  else if (cursors.right.isDown) player.setVelocityX(100);
+//   if (cursors.left.isDown) player.setVelocityX(-100);
+//   else if (cursors.right.isDown) player.setVelocityX(100);
 
-  if (cursors.up.isDown) player.setVelocityY(-100);
-  else if (cursors.down.isDown) player.setVelocityY(100);
+//   if (cursors.up.isDown) player.setVelocityY(-100);
+//   else if (cursors.down.isDown) player.setVelocityY(100);
 }
