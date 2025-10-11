@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import mySheet from "./assets/sheet.png";
+import mySheet from "Squirrel Sprite Sheet.png";
 
 
 class MyGame extends Phaser.Scene
