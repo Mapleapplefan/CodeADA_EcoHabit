@@ -21,9 +21,14 @@ let cursors;
 const game = new Phaser.Game(config);
 
 function preload() {
-  // Example assets — replace with your own later
-  this.load.image('tiles', 'assets/tilesets/tileset.png');
   this.load.tilemapTiledJSON('map', 'assets/tilemaps/map.tmj');
+
+  // Load all the tileset images that your map uses
+  this.load.image('building', 'assets/tilesets/building.png');
+  this.load.image('main', 'assets/tilesets/Courtyard.png');
+  this.load.image('Roads', 'assets/tilesets/Roads.png');
+
+  // Load your player sprite
   this.load.spritesheet('player', 'assets/sprites/player.png', {
     frameWidth: 32,
     frameHeight: 32
@@ -31,16 +36,24 @@ function preload() {
 }
 
 function create() {
-  // Load tilemap
-//   const map = this.make.tilemap({ key: 'map' });
-// const map = this.make.tilemap({ key: "map" });
-    const map = this.add.tilemap("map");
-  const tiles = map.addTilesetImage("main", "tiles");
-  const groundLayer = map.createLayer("ground", tiles, 0, 0);
+  const map = this.make.tilemap({ key: 'map' });
 
-  player = this.physics.add.sprite(100, 100, "player");
+  // Add all the tilesets the map expects
+  const buildingTiles = map.addTilesetImage('building', 'building');
+  const mainTiles = map.addTilesetImage('main', 'main');
+  const roadsTiles = map.addTilesetImage('Roads', 'Roads');
+
+  // Combine them into one array (so Phaser can use them across layers)
+  const allTiles = [buildingTiles, mainTiles, roadsTiles];
+
+  // Create each layer by its name in Tiled
+  const groundLayer = map.createLayer('ground', allTiles, 0, 0);
+  const buildingLayer = map.createLayer('building', allTiles, 0, 0);
+  const treesLayer = map.createLayer('trees', allTiles, 0, 0);
+
+  // Add player and controls
+  player = this.physics.add.sprite(100, 100, 'player');
   player.setCollideWorldBounds(true);
-
   cursors = this.input.keyboard.createCursorKeys();
 }
 
