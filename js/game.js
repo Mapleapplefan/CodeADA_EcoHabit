@@ -23,7 +23,7 @@ const game = new Phaser.Game(config);
 function preload() {
   // Example assets — replace with your own later
   this.load.image('tiles', 'assets/tilesets/tileset.png');
-  this.load.tilemapTiledJSON('map', 'assets/tilemaps/map.json');
+  this.load.tilemapTiledJSON('map', 'assets/tilemaps/map.tmj');
   this.load.spritesheet('player', 'assets/sprites/player.png', {
     frameWidth: 32,
     frameHeight: 32
@@ -32,15 +32,15 @@ function preload() {
 
 function create() {
   // Load tilemap
-  const map = this.make.tilemap({ key: 'map' });
-  const tileset = map.addTilesetImage('tilesetNameInTiled', 'tiles');
-  const layer = map.createLayer('Tile Layer 1', tileset, 0, 0);
+//   const map = this.make.tilemap({ key: 'map' });
+// const map = this.make.tilemap({ key: "map" });
+    const map = this.add.tilemap("map");
+  const tiles = map.addTilesetImage("main", "tiles");
+  const groundLayer = map.createLayer("ground", tiles, 0, 0);
 
-  // Add player
-  player = this.physics.add.sprite(100, 100, 'player', 0);
+  player = this.physics.add.sprite(100, 100, "player");
   player.setCollideWorldBounds(true);
 
-  // Add arrow key controls
   cursors = this.input.keyboard.createCursorKeys();
 }
 
