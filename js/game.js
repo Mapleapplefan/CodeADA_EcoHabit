@@ -35,21 +35,27 @@ function create() {
 //   const map = this.make.tilemap({ key: 'map' });
 // const map = this.make.tilemap({ key: "map" });
     const map = this.add.tilemap("map");
-  const tiles = map.addTilesetImage("main", "tiles");
-  const groundLayer = map.createLayer("ground", tiles, 0, 0);
+    const tiles = map.addTilesetImage("main", "tiles");
+    if (map != null) {
+        console.log("map loaded")
+    }
+    if (tiles != null) {
+        console.log("tiles loaded")
+    }
+//   const groundLayer = map.createLayer("ground", tiles, 0, 0);
 
-  player = this.physics.add.sprite(100, 100, "player");
-  player.setCollideWorldBounds(true);
+//   player = this.physics.add.sprite(100, 100, "player");
+//   player.setCollideWorldBounds(true);
 
-  cursors = this.input.keyboard.createCursorKeys();
+//   cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
-  player.setVelocity(0);
+//   player.setVelocity(0);
 
-  if (cursors.left.isDown) player.setVelocityX(-100);
-  else if (cursors.right.isDown) player.setVelocityX(100);
+//   if (cursors.left.isDown) player.setVelocityX(-100);
+//   else if (cursors.right.isDown) player.setVelocityX(100);
 
-  if (cursors.up.isDown) player.setVelocityY(-100);
-  else if (cursors.down.isDown) player.setVelocityY(100);
+//   if (cursors.up.isDown) player.setVelocityY(-100);
+//   else if (cursors.down.isDown) player.setVelocityY(100);
 }
