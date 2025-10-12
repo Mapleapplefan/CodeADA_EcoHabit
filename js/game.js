@@ -23,6 +23,9 @@ let squi;
 let cursors;
 let mapImage;
 let enteredHouse = false;
+let carbonFootprint = 67;
+let guideLine;
+let completedCount = 0;
 
 
 const game = new Phaser.Game(config);
@@ -35,9 +38,14 @@ function preload() {
         frameWidth: 32, 
         frameHeight: 32
   });
+
+    // this.load.image('bike', 'assets/sprites/bike.png');
+    // this.load.image('car', 'assets/sprites/car.png');
+    // this.load.image('bus', 'assets/sprites/bus.png');
 }
 
 function create() {
+enteredHouse = false;
 //Map stuff
   // SIMPLE: Just add the map as a background image
   mapImage = this.add.image(0, 0, 'map').setOrigin(0, 0);
@@ -46,6 +54,15 @@ function create() {
   this.physics.world.setBounds(0, 0, mapImage.width, mapImage.height);
   this.cameras.main.setBounds(0, 0, mapImage.width, mapImage.height);
 
+
+//   //creating statis vechnicles 
+//     const bike = scene.add.image(680, 2400, 'bike').setOrigin(0.5).setScale(3);
+
+//     // Add car sprite
+//     const car = scene.add.image(680, 2450,, 'car').setOrigin(0.5).setScale(3);
+
+//     // Add bus sprite
+//     const bus = scene.add.image(600, 2500, 'bus').setOrigin(0.5).setScale(3);
 
   //for finding spots on the map
   this.input.on('pointerdown', (pointer) => {
@@ -82,7 +99,10 @@ function create() {
   
   // console.log('✅ Map loaded as image:', mapImage.width, 'x', mapImage.height);
   createCollisions(this);
-  //Collisions
+
+  //task bar
+  const tasks = ["[X] Buy Groceries from Shop", "[X] Do laundry at home", "[X] Bathe at home" ];
+    createTaskBar(this, tasks);
 }
 
 
@@ -111,7 +131,7 @@ function create() {
     answers.forEach((answer, index) => {
         const btn = scene.add.text(centerX, buttonYStart + index * 50, answer, {
         fontSize: '20px',
-        backgroundColor: '#87CEFA',
+        backgroundColor: '#6ecd87ff',
         color: '#000',
         padding: { x: 10, y: 5 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
@@ -129,6 +149,105 @@ function create() {
     player.body.enable = false;
 }
 
+function createGuideLine(scene, player, targetZone) {
+    // Create graphics object once
+    guideLine = scene.add.graphics();
+
+    const updateHandler = () => {
+        if (!guideLine) return;
+
+        // If player overlaps store, remove line and stop updating
+        if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), targetZone.getBounds())) {
+            guideLine.destroy();
+            guideLine = null;
+            console.log("MADE IT TO THEW SOTORE");
+            // Remove this listener to prevent future calls
+            scene.events.off('update', updateHandler);
+            return;
+        }
+
+        // Clear previous line
+        guideLine.clear();
+
+        // Draw line from player center to store center
+        const targetCenter = targetZone.getCenter();
+        guideLine.lineStyle(2, 0xff0000, 1);
+        guideLine.beginPath();
+        guideLine.moveTo(player.x, player.y);
+        guideLine.lineTo(targetCenter.x, targetCenter.y);
+        guideLine.strokePath();
+        guideLine.closePath();
+    };
+
+    // Add the listener
+    scene.events.on('update', updateHandler);
+}
+
+function game_end(scene) {
+    // Example: go to a ResultsScene or show overlay
+    console.log("end scene");
+    scene.scene.start('ResultsScene', { carbonFootprint: carbonFootprint });
+}
+
+
+function createTaskBar(scene, tasks) {
+    // Create a container for the task bar
+    const taskBar = scene.add.container(0, 0);
+    
+    // Panel background
+    const panelWidth = 400;
+    const panelHeight = tasks.length * 40 + 20;
+    const panel = scene.add.rectangle(
+        scene.cameras.main.width - 50,
+        -30, 
+        panelWidth, 
+        panelHeight, 
+        0x222222, 
+        0.8
+    );
+    panel.setStrokeStyle(2, 0xffffff);
+    panel.setOrigin(0.5);
+    
+    // Fix to camera so it doesn't move with world
+    panel.setScrollFactor(0);
+    taskBar.add(panel);
+    // Add task buttons
+    tasks.forEach((task, i) => {
+    const btn = scene.add.text(
+        scene.cameras.main.width - 200,
+        -85 + i * 40,
+        task,
+        { fontSize: '16px', color: '#ffffff', backgroundColor: '#555555', padding: { x: 5, y: 5 } }
+    )
+    .setInteractive({ useHandCursor: true })
+    .on('pointerdown', () => {
+        if (!btn.completed) {            // prevent double-counting
+            btn.completed = true;
+            console.log(`Task "${task}" completed!`);
+            btn.setStyle({ color: '#aaaaaa', backgroundColor: '#333333' });
+            completedCount++;
+
+            // Check if all tasks are done
+            if (completedCount === tasks.length) {
+                game_end(scene);
+            }
+        }
+    });
+
+    btn.setScrollFactor(0);
+    taskBar.add(btn);
+});
+
+
+    if (completedCount == 3) {
+        game_end(scene);
+    }
+
+    return taskBar;
+}
+
+
+
 function createCollisions(scene) {
 
 //house collision
@@ -139,24 +258,55 @@ function createCollisions(scene) {
   scene.physics.add.collider(player, houseZone, enterHouse, null, scene);
 
 //transportation collision
-const transportationq = scene.add.rectangle(675, 2400, 100, 150, 0x00ff00, 0.3);
+const transportationq = scene.add.rectangle(680, 2400, 80, 300, 0x00ff00, 0.3);
   scene.physics.add.existing(transportationq, true);
   transportationq.setStrokeStyle(2, 0x00ff00); // outline for visibility
   scene.physics.add.overlap(player, transportationq, () => {
     // Disable player movement while popup is open
     player.body.enable = false;
 
+    console.log("before: " + carbonFootprint);
     showQuestion(scene, "Transportation?", ["Car", "Bike", "Walk", "Bus"], (answer) => {
       console.log("Player selected:", answer);
+    if (answer == "Car"){
+        carbonFootprint += 	1,600;
+    } else if (answer == "Bike"  || answer == "Walk"){
+        carbonFootprint += 0;
+    } else {
+        carbonFootprint += 82
+    }
+    console.log("after" + carbonFootprint);
+    // //creating guideline
+    // storeZone = scene.add.rectangle(2507, 2159, 100, 100, 0x0000ff, 0.3);
+    // scene.physics.add.existing(storeZone, true);
+    // storeZone.setStrokeStyle(2, 0x00ff00); // outline for visibility
+    // createGuideLine(scene, player, storeZone);
+    
 
       // Re-enable movement after selecting
       player.body.enable = true;
-
+    // bike.destroy();
+    // car.destroy();
+    // bus.destroy();
       // Optional: remove collision zone so it doesn't trigger again
       transportationq.destroy();
     });
+
+
+    showQuestion(scene, "Where to go?", ["Shop"], (answer) => {
+    console.log("Player selected:", answer);
+    if (answer == "Shop"){
+        //creating guideline
+        storeZone = scene.add.rectangle(2507, 2159, 100, 100, 0x0000ff, 0.3);
+        scene.physics.add.existing(storeZone, true);
+        storeZone.setStrokeStyle(2, 0x00ff00); // outline for visibility
+        createGuideLine(scene, player, storeZone);
+    } 
+    });
+
   }, null, scene);
 }
+
 
 function enterHouse(player, houseZone) {
   if (enteredHouse) return; // prevent repeat triggers
@@ -209,6 +359,8 @@ function update() {
     player.anims.play('tail', true);
   }
 
+//   //update guideline
+//   createGuideLine(scene, player, storeZone);
 }
 
 
@@ -231,9 +383,9 @@ class HouseScene extends Phaser.Scene {
     });
     // mapImage = this.add.image(0, 0, 'map').setOrigin(0, 0);
     const scale = 3.5;
-const houseImage = this.add.image(0, 0, 'house').setOrigin(0, 0).setScale(scale);
-this.physics.world.setBounds(0, 0, houseImage.width * scale, houseImage.height * scale);
-this.cameras.main.setBounds(0, 0, houseImage.width * scale, houseImage.height * scale);
+    const houseImage = this.add.image(0, 0, 'house').setOrigin(0, 0).setScale(scale);
+    this.physics.world.setBounds(0, 0, houseImage.width * scale, houseImage.height * scale);
+    this.cameras.main.setBounds(0, 0, houseImage.width * scale, houseImage.height * scale);
 
 
 
@@ -332,7 +484,60 @@ window.addEventListener('error', (event) => {
         console.warn('Ignored extension error:', event.message);
         return false;
     }
-
     // Otherwise, let the error propagate normally
 });
+
+
+class ResultsScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'ResultsScene' });
+    }
+
+    init(data) {
+        // `data` comes from scene.start('ResultsScene', { carbonFootprint })
+        this.carbonFootprint = data.carbonFootprint || 0;
+    }
+
+    preload() {
+        // Load any assets for the results screen if needed
+        // e.g., background image, icons, etc.
+    }
+
+    create() {
+        const cam = this.cameras.main;
+        const centerX = cam.centerX;
+        const centerY = cam.centerY;
+
+        // Background
+        this.add.rectangle(centerX, centerY, cam.width, cam.height, 0x222222, 0.9);
+
+        // Title text
+        this.add.text(centerX, centerY - 100, 'Game Finished!', {
+            fontSize: '48px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // Carbon footprint result
+        this.add.text(centerX, centerY, `Your carbon footprint: ${this.carbonFootprint}`, {
+            fontSize: '32px',
+            color: '#ffcc00'
+        }).setOrigin(0.5);
+
+        // Optional: restart button
+        const restartBtn = this.add.text(centerX, centerY + 100, 'Play Again', {
+            fontSize: '28px',
+            color: '#000000',
+            backgroundColor: '#ffffff',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        restartBtn.on('pointerdown', () => {
+            this.scene.start('default'); // go back to main scene
+        });
+    }
+}
+
+// Add the scene to the game
+game.scene.add('ResultsScene', ResultsScene);
 
