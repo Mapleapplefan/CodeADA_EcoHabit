@@ -33,6 +33,7 @@ const game = new Phaser.Game(config);
 function preload() {
   // JUST load the map as a simple image - NO tilemap stuff
   this.load.image('map', 'assets/tilemaps/map.png');
+  this.load.image('map', 'assets/tilemaps/map1.png');
   
   this.load.spritesheet('player', 'assets/sprites/squirrel.png', {
         frameWidth: 32, 
