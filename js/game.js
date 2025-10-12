@@ -26,13 +26,14 @@ let enteredHouse = false;
 let carbonFootprint = 67;
 let guideLine;
 let completedCount = 0;
+let chooseCar = false;
 
 
 const game = new Phaser.Game(config);
 
 function preload() {
   // JUST load the map as a simple image - NO tilemap stuff
-  this.load.image('map', 'assets/tilemaps/map.png');
+  // this.load.image('map', 'assets/tilemaps/map.png');
   this.load.image('map', 'assets/tilemaps/map1.png');
   
   this.load.spritesheet('player', 'assets/sprites/squirrel.png', {
@@ -268,46 +269,41 @@ const transportationq = scene.add.rectangle(3700, 1400, 80, 300, 0x00ff00, 0.3);
     player.body.enable = false;
 
     console.log("before: " + carbonFootprint);
-    showQuestion(scene, "Transportation?", ["Car", "Bike", "Walk", "Bus"], (answer) => {
-      console.log("Player selected:", answer);
-    if (answer == "Car"){
-        carbonFootprint += 	1,600;
-    } else if (answer == "Bike"  || answer == "Walk"){
-        carbonFootprint += 0;
-    } else {
-        carbonFootprint += 82
-    }
-    console.log("after" + carbonFootprint);
-    // //creating guideline
-    // storeZone = scene.add.rectangle(2507, 2159, 100, 100, 0x0000ff, 0.3);
-    // scene.physics.add.existing(storeZone, true);
-    // storeZone.setStrokeStyle(2, 0x00ff00); // outline for visibility
-    // createGuideLine(scene, player, storeZone);
-    
+    transportationq.destroy();
+showQuestion(scene, "Where to go?", ["Shop"], (locationAnswer) => {
+        console.log("Player selected location:", locationAnswer);
+        
+        if (locationAnswer == "Shop"){
+            // Create destination zone and guideline
+            storeZone = scene.add.rectangle(6300, 2890, 100, 100, 0x0000ff, 0.3);
+            scene.physics.add.existing(storeZone, true);
+            storeZone.setStrokeStyle(2, 0x00ff00);
+            createGuideLine(scene, player, storeZone);
 
-      // Re-enable movement after selecting
-      player.body.enable = true;
-    // bike.destroy();
-    // car.destroy();
-    // bus.destroy();
-      // Optional: remove collision zone so it doesn't trigger again
-      transportationq.destroy();
+            // ✅ NOW ASK TRANSPORTATION INSIDE THE LOCATION CALLBACK
+            showQuestion(scene, "Transportation?", ["Car", "Bike", "Walk", "Bus"], (transportAnswer) => {
+                console.log("Player selected transportation:", transportAnswer);
+                
+                // Process transportation answer
+                if (transportAnswer == "Car"){
+                    carbonFootprint += 1600; // ✅ FIXED: removed the comma
+                    chooseCar = true;
+                    
+                    // ✅ TELEPORT IMMEDIATELY AFTER CHOOSING CAR
+                    player.setPosition(6000, 2890);
+                    chooseCar = false;
+                } else if (transportAnswer == "Bike" || answer == "Walk"){
+                    carbonFootprint += 0;
+                } else {
+                    carbonFootprint += 82;
+                }
+                console.log("after: " + carbonFootprint);
+
+                // Re-enable movement after BOTH questions are done
+                player.body.enable = true;
+            });
+        } 
     });
-
-    
-
-
-    showQuestion(scene, "Where to go?", ["Shop"], (answer) => {
-    console.log("Player selected:", answer);
-    if (answer == "Shop"){
-        //creating guideline ignore x: 6274.57152452761 y: 2830.952429163219
-        storeZone = scene.add.rectangle(6300, 2890, 100, 100, 0x0000ff, 0.3);
-        scene.physics.add.existing(storeZone, true);
-        storeZone.setStrokeStyle(2, 0x00ff00); // outline for visibility
-        createGuideLine(scene, player, storeZone);
-    } 
-    });
-
   }, null, scene);
 }
 
