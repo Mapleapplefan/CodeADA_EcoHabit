@@ -7,7 +7,7 @@ const config = {
   physics: {
     default: 'arcade',
     arcade: { 
-      debug: true,
+      debug: false,
       gravity: { y: 0 }
     }
   },
@@ -21,6 +21,8 @@ const config = {
 let player;
 let cursors;
 let mapImage;
+let enteredHouse = false;
+
 
 const game = new Phaser.Game(config);
 
@@ -28,11 +30,6 @@ function preload() {
   // JUST load the map as a simple image - NO tilemap stuff
   this.load.image('map', 'assets/tilemaps/map.png');
   
-  // Load player (only once - you had it twice)
-  // this.load.spritesheet('player', 'assets/sprites/player.png', {
-  //   frameWidth: 32,
-  //   frameHeight: 32
-  // });
   this.load.spritesheet('player', 'assets/sprites/squirrel.png', {
         frameWidth: 32, 
         frameHeight: 32
@@ -48,10 +45,14 @@ function create() {
   this.physics.world.setBounds(0, 0, mapImage.width, mapImage.height);
   this.cameras.main.setBounds(0, 0, mapImage.width, mapImage.height);
 
+
+  //for finding spots on the map
+  this.input.on('pointerdown', (pointer) => {
+  console.log('x:', pointer.worldX, 'y:', pointer.worldY);
+});
   
   // Create player
-  player = this.physics.add.sprite(500,                 
-  mapImage.height - 200,  'player');
+  player = this.physics.add.sprite(500, mapImage.height - 200,  'player');
   player.setScale(3);
   player.setCollideWorldBounds(true);
 
@@ -62,7 +63,7 @@ function create() {
         frameRate: 6,
         repeat: -1
     });
-    
+
     // Jumping
     this.anims.create({
         key: 'walk',
@@ -78,7 +79,34 @@ function create() {
   // Keyboard controls
   cursors = this.input.keyboard.createCursorKeys();
   
-  console.log('✅ Map loaded as image:', mapImage.width, 'x', mapImage.height);
+  // console.log('✅ Map loaded as image:', mapImage.width, 'x', mapImage.height);
+  createCollisions(this);
+  //Collisions
+}
+
+function createCollisions(scene) {
+  const houseZone =  scene.add.rectangle(569, 2130, 250, 200, 0x00ff00, 0.3);
+  scene.physics.add.existing(houseZone, true);
+  houseZone.setStrokeStyle(2, 0x00ff00); // outline for visibility
+  scene.physics.add.overlap(player, houseZone, openPopup, null, this);
+  scene.physics.add.collider(player, houseZone, enterHouse, null, scene);
+
+}
+
+function enterHouse(player, houseZone) {
+  if (enteredHouse) return; // prevent repeat triggers
+  enteredHouse = true;
+  player.body.setVelocity(0);
+  // Optional fade-out before switching
+  player.scene.cameras.main.fadeOut(800, 0, 0, 0);
+
+  player.scene.time.delayedCall(800, () => {
+    player.scene.scene.start('HouseScene'); // must exist
+  });
+}
+
+function openPopup() {
+  console.log("🦝 You reached the house!");
 }
 
 function update() {
@@ -117,3 +145,27 @@ function update() {
   }
   
 }
+
+class HouseScene extends Phaser.Scene {
+  constructor() {
+    super('HouseScene');
+  }
+
+  preload() {
+    this.load.image('inside', 'assets/sprites/player.png');
+  }
+
+  create() {
+    this.add.image(400, 300, 'inside').setOrigin(0.5);
+    this.add.text(150, 100, '🏡 You are inside the house!', {
+      fontSize: '28px',
+      fill: '#ffffff'
+    });
+
+    // ESC to return
+    this.input.keyboard.once('keydown-ESC', () => {
+      this.scene.start('default'); // "default" = your main unnamed scene
+    });
+  }
+}
+
