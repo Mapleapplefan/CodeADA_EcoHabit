@@ -2,11 +2,14 @@ const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
-  parent: 'game-container', // ⬅️ mount inside div
+  parent: 'game-container',
   pixelArt: true,
   physics: {
     default: 'arcade',
-    arcade: { debug: false }
+    arcade: { 
+      debug: true,
+      gravity: { y: 0 }
+    }
   },
   scene: {
     preload,
@@ -17,41 +20,50 @@ const config = {
 
 let player;
 let cursors;
+let mapImage;
 
 const game = new Phaser.Game(config);
 
 function preload() {
-  this.load.tilemapTiledJSON('map', './assets/tilemaps/map.tmj');
-
-  // Load all the tileset images that your map uses
-  this.load.image('building', './assets/tilesets/building.png');
-  this.load.image('main', './assets/tilesets/Courtyard.png');
-  this.load.image('Roads', './assets/tilesets/Roads.png');
-
-  // Load your player sprite
-  this.load.spritesheet('player', './assets/sprites/player.png', {
+  // JUST load the map as a simple image - NO tilemap stuff
+  this.load.image('map', 'assets/tilemaps/map.png');
+  
+  // Load player (only once - you had it twice)
+  this.load.spritesheet('player', 'assets/sprites/player.png', {
     frameWidth: 32,
     frameHeight: 32
   });
 }
 
 function create() {
-const map = this.make.tilemap({ key: "map" });
-  const tiles = map.addTilesetImage("main", "tiles");
-  const groundLayer = map.createLayer("ground", tiles, 0, 0);
-
-  player = this.physics.add.sprite(100, 100, "player");
+  // SIMPLE: Just add the map as a background image
+  mapImage = this.add.image(0, 0, 'map').setOrigin(0, 0);
+  
+  // Set bounds to the actual image size
+  this.physics.world.setBounds(0, 0, mapImage.width, mapImage.height);
+  this.cameras.main.setBounds(0, 0, mapImage.width, mapImage.height);
+  
+  // Create player
+  player = this.physics.add.sprite(500,                      // 100px from left edge
+  mapImage.height - 200,  'player');
   player.setCollideWorldBounds(true);
-
+  
+  // Camera follows player
+  this.cameras.main.startFollow(player);
+  this.cameras.main.setZoom(0.7)
+  
+  // Keyboard controls
   cursors = this.input.keyboard.createCursorKeys();
+  
+  console.log('✅ Map loaded as image:', mapImage.width, 'x', mapImage.height);
 }
 
 function update() {
   player.setVelocity(0);
 
-  if (cursors.left.isDown) player.setVelocityX(-100);
-  else if (cursors.right.isDown) player.setVelocityX(100);
+  if (cursors.left.isDown) player.setVelocityX(-160);
+  else if (cursors.right.isDown) player.setVelocityX(160);
 
-  if (cursors.up.isDown) player.setVelocityY(-100);
-  else if (cursors.down.isDown) player.setVelocityY(100);
+  if (cursors.up.isDown) player.setVelocityY(-160);
+  else if (cursors.down.isDown) player.setVelocityY(160);
 }
