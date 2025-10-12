@@ -292,7 +292,9 @@ showQuestion(scene, "Where to go?", ["Shop"], (locationAnswer) => {
                     // ✅ TELEPORT IMMEDIATELY AFTER CHOOSING CAR
                     player.setPosition(6000, 2890);
                     chooseCar = false;
-                } else if (transportAnswer == "Bike" || answer == "Walk"){
+                } else if (transportAnswer == "Bike"){
+                    carbonFootprint += 0;
+                } else if (transportAnswer == "Walk"){
                     carbonFootprint += 0;
                 } else {
                     carbonFootprint += 82;
