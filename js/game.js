@@ -85,13 +85,77 @@ function create() {
   //Collisions
 }
 
+
+  function showQuestion(scene, questionText, answers, callback) {
+    const cam = scene.cameras.main;
+    const centerX = cam.scrollX + cam.centerX;
+    const centerY = cam.scrollY + cam.centerY;
+
+    // Dark overlay covering the screen
+    const overlay = scene.add.rectangle(centerX, centerY, cam.width, cam.height, 0x000000, 0.5);
+
+  // Popup box
+    const box = scene.add.rectangle(centerX, centerY, 500, 300, 0xffffff, 1).setStrokeStyle(2, 0x000000);
+
+    // Question text
+    const question = scene.add.text(centerX, centerY - 60, questionText, {
+        fontSize: '24px',
+        color: '#000',
+        wordWrap: { width: 450 }
+    }).setOrigin(0.5);
+
+    // Buttons
+    const buttonYStart = centerY;
+    const buttons = [];
+
+    answers.forEach((answer, index) => {
+        const btn = scene.add.text(centerX, buttonYStart + index * 50, answer, {
+        fontSize: '20px',
+        backgroundColor: '#87CEFA',
+        color: '#000',
+        padding: { x: 10, y: 5 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        btn.on('pointerdown', () => {
+        container.destroy(); // remove popup
+        callback(answer);    // handle answer
+        });
+
+        buttons.push(btn);
+    });
+
+    // Add everything to a container
+    const container = scene.add.container(0, 0, [overlay, box, question, ...buttons]);
+    player.body.enable = false;
+}
+
 function createCollisions(scene) {
+
+//house collision
   const houseZone =  scene.add.rectangle(569, 2130, 250, 200, 0x00ff00, 0.3);
   scene.physics.add.existing(houseZone, true);
   houseZone.setStrokeStyle(2, 0x00ff00); // outline for visibility
   scene.physics.add.overlap(player, houseZone, openPopup, null, this);
   scene.physics.add.collider(player, houseZone, enterHouse, null, scene);
 
+//transportation collision
+const transportationq = scene.add.rectangle(675, 2400, 100, 150, 0x00ff00, 0.3);
+  scene.physics.add.existing(transportationq, true);
+  transportationq.setStrokeStyle(2, 0x00ff00); // outline for visibility
+  scene.physics.add.overlap(player, transportationq, () => {
+    // Disable player movement while popup is open
+    player.body.enable = false;
+
+    showQuestion(scene, "Transportation?", ["Car", "Bike", "Walk", "Bus"], (answer) => {
+      console.log("Player selected:", answer);
+
+      // Re-enable movement after selecting
+      player.body.enable = true;
+
+      // Optional: remove collision zone so it doesn't trigger again
+      transportationq.destroy();
+    });
+  }, null, scene);
 }
 
 function enterHouse(player, houseZone) {
@@ -144,7 +208,7 @@ function update() {
   } else {
     player.anims.play('tail', true);
   }
-  
+
 }
 
 
@@ -166,7 +230,7 @@ class HouseScene extends Phaser.Scene {
     this.scene.start('default'); // "default" = your main unnamed scene
     });
     // mapImage = this.add.image(0, 0, 'map').setOrigin(0, 0);
-    const scale = 3;
+    const scale = 3.5;
 const houseImage = this.add.image(0, 0, 'house').setOrigin(0, 0).setScale(scale);
 this.physics.world.setBounds(0, 0, houseImage.width * scale, houseImage.height * scale);
 this.cameras.main.setBounds(0, 0, houseImage.width * scale, houseImage.height * scale);
@@ -180,7 +244,7 @@ this.cameras.main.setBounds(0, 0, houseImage.width * scale, houseImage.height * 
     ////
     // Create squi
  squi = this.physics.add.sprite(574, 250,  'squi');
- squi.setScale(3);
+ squi.setScale(5);
  squi.setCollideWorldBounds(true);
 
  
@@ -247,7 +311,6 @@ if (!this.anims.exists('tail')) {
     squi.anims.play('tail', true);
   }
 }
-
 
 }
 
