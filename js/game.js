@@ -146,26 +146,104 @@ function update() {
   
 }
 
+
+
 class HouseScene extends Phaser.Scene {
-  constructor() {
-    super('HouseScene');
-  }
 
   preload() {
-    this.load.image('inside', 'assets/sprites/player.png');
+    this.load.image('map', 'assets/tilesets/SquirrelHouse.png');
+    this.load.spritesheet('player', 'assets/sprites/squirrel.png', {
+      frameWidth: 32,
+      frameHeight: 32
+    });
   }
 
   create() {
-    this.add.image(400, 300, 'inside').setOrigin(0.5);
-    this.add.text(150, 100, '🏡 You are inside the house!', {
-      fontSize: '28px',
-      fill: '#ffffff'
+    // this.add.image(400, 300, 'inside').setOrigin(0.5);
+    // this.add.text(150, 100, '🏡 You are inside the house!', {
+    //   fontSize: '28px',
+    //   fill: '#ffffff'
+    // });
+
+    // // ESC to return
+    // this.input.keyboard.once('keydown-ESC', () => {
+    //   this.scene.start('default'); // "default" = your main unnamed scene
+    // });
+    mapImage = this.add.image(0, 0, 'map').setOrigin(0, 0);
+  
+  // Set bounds to the actual image size
+  this.physics.world.setBounds(0, 0, mapImage.width, mapImage.height);
+  this.cameras.main.setBounds(0, 0, mapImage.width, mapImage.height);
+
+
+  //for finding spots on the map
+  this.input.on('pointerdown', (pointer) => {
+  console.log('x:', pointer.worldX, 'y:', pointer.worldY);
+});
+  
+  // Create player
+  player = this.physics.add.sprite(500, mapImage.height - 200,  'player');
+  player.setScale(3);
+  player.setCollideWorldBounds(true);
+
+  // Tail wag
+    this.anims.create({
+        key: 'tail',
+        frames: this.anims.generateFrameNumbers('player', { start: 0, end: 5 }),
+        frameRate: 6,
+        repeat: -1
     });
 
-    // ESC to return
-    this.input.keyboard.once('keydown-ESC', () => {
-      this.scene.start('default'); // "default" = your main unnamed scene
+    // Jumping
+    this.anims.create({
+        key: 'walk',
+        frames: this.anims.generateFrameNumbers('player', { start: 16, end: 23 }),
+        frameRate: 10,
+        repeat: 0
     });
+  
+  // Camera follows player
+  this.cameras.main.startFollow(player);
+  this.cameras.main.setZoom(0.7)
+  
+  // Keyboard controls
+  cursors = this.input.keyboard.createCursorKeys();
   }
+
+  update() {
+  const speed = 200;
+  let moving = false; // Track if any key is pressed
+
+  player.setVelocity(0);
+
+  // Horizontal movement
+  if (cursors.left.isDown) {
+    player.setVelocityX(-speed);
+    player.flipX = true;
+    moving = true;
+  } 
+  else if (cursors.right.isDown) {
+    player.setVelocityX(speed);
+    player.flipX = false;
+    moving = true;
+  }
+
+  // Vertical movement
+  if (cursors.up.isDown) {
+    player.setVelocityY(-speed);
+    moving = true;
+  } 
+  else if (cursors.down.isDown) {
+    player.setVelocityY(speed);
+    moving = true;
+  }
+
+  // Animation handling
+  if (moving) {
+    player.anims.play('walk', true);
+  } else {
+    player.anims.play('tail', true);
+  }
+}
 }
 
