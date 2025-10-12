@@ -36,6 +36,7 @@ function preload() {
 }
 
 function create() {
+//Map stuff
   // SIMPLE: Just add the map as a background image
   mapImage = this.add.image(0, 0, 'map').setOrigin(0, 0);
   
@@ -47,6 +48,12 @@ function create() {
   player = this.physics.add.sprite(500,                      // 100px from left edge
   mapImage.height - 200,  'player');
   player.setCollideWorldBounds(true);
+
+  //added to player movement
+  
+
+
+
   
   // Camera follows player
   this.cameras.main.startFollow(player);
