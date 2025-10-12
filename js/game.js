@@ -62,15 +62,7 @@ function create() {
         frameRate: 6,
         repeat: -1
     });
-
-    // Looking around
-    // this.anims.create({
-    //     key: 'look',
-    //     frames: this.anims.generateFrameNumbers('player', { start: 6, end: 11 }),
-    //     frameRate: 6,
-    //     repeat: -1
-    // });
-
+    
     // Jumping
     this.anims.create({
         key: 'walk',
