@@ -70,7 +70,7 @@ enteredHouse = false;
 });
   
   // Create player
-  player = this.physics.add.sprite(500, mapImage.height - 200,  'player');
+  player = this.physics.add.sprite(3500, 1300, 'player');
   player.setScale(3);
   player.setCollideWorldBounds(true);
 
@@ -89,6 +89,7 @@ enteredHouse = false;
         frameRate: 10,
         repeat: 0
     });
+    
   
   // Camera follows player
   this.cameras.main.startFollow(player);
@@ -251,14 +252,14 @@ function createTaskBar(scene, tasks) {
 function createCollisions(scene) {
 
 //house collision
-  const houseZone =  scene.add.rectangle(569, 2130, 250, 200, 0x00ff00, 0.3);
+  const houseZone =  scene.add.rectangle(3500, 1150, 250, 200, 0x00ff00, 0.3);
   scene.physics.add.existing(houseZone, true);
   houseZone.setStrokeStyle(2, 0x00ff00); // outline for visibility
   scene.physics.add.overlap(player, houseZone, openPopup, null, this);
   scene.physics.add.collider(player, houseZone, enterHouse, null, scene);
 
-//transportation collision
-const transportationq = scene.add.rectangle(680, 2400, 80, 300, 0x00ff00, 0.3);
+//transportation collision x: 3652.857194165795 y: 1312.8571652149672 
+const transportationq = scene.add.rectangle(3700, 1400, 80, 300, 0x00ff00, 0.3);
   scene.physics.add.existing(transportationq, true);
   transportationq.setStrokeStyle(2, 0x00ff00); // outline for visibility
   scene.physics.add.overlap(player, transportationq, () => {
@@ -292,12 +293,14 @@ const transportationq = scene.add.rectangle(680, 2400, 80, 300, 0x00ff00, 0.3);
       transportationq.destroy();
     });
 
+    
+
 
     showQuestion(scene, "Where to go?", ["Shop"], (answer) => {
     console.log("Player selected:", answer);
     if (answer == "Shop"){
-        //creating guideline
-        storeZone = scene.add.rectangle(2507, 2159, 100, 100, 0x0000ff, 0.3);
+        //creating guideline ignore x: 6274.57152452761 y: 2830.952429163219
+        storeZone = scene.add.rectangle(6300, 2890, 100, 100, 0x0000ff, 0.3);
         scene.physics.add.existing(storeZone, true);
         storeZone.setStrokeStyle(2, 0x00ff00); // outline for visibility
         createGuideLine(scene, player, storeZone);
