@@ -29,9 +29,13 @@ function preload() {
   this.load.image('map', 'assets/tilemaps/map.png');
   
   // Load player (only once - you had it twice)
-  this.load.spritesheet('player', 'assets/sprites/player.png', {
-    frameWidth: 32,
-    frameHeight: 32
+  // this.load.spritesheet('player', 'assets/sprites/player.png', {
+  //   frameWidth: 32,
+  //   frameHeight: 32
+  // });
+  this.load.spritesheet('player', 'assets/sprites/squirrel.png', {
+        frameWidth: 32, 
+        frameHeight: 32
   });
 }
 
@@ -43,17 +47,37 @@ function create() {
   // Set bounds to the actual image size
   this.physics.world.setBounds(0, 0, mapImage.width, mapImage.height);
   this.cameras.main.setBounds(0, 0, mapImage.width, mapImage.height);
+
   
   // Create player
-  player = this.physics.add.sprite(500,                      // 100px from left edge
+  player = this.physics.add.sprite(500,                 
   mapImage.height - 200,  'player');
+  player.setScale(3);
   player.setCollideWorldBounds(true);
 
-  //added to player movement
-  
+  // Tail wag
+    this.anims.create({
+        key: 'tail',
+        frames: this.anims.generateFrameNumbers('player', { start: 0, end: 5 }),
+        frameRate: 6,
+        repeat: -1
+    });
 
+    // Looking around
+    // this.anims.create({
+    //     key: 'look',
+    //     frames: this.anims.generateFrameNumbers('player', { start: 6, end: 11 }),
+    //     frameRate: 6,
+    //     repeat: -1
+    // });
 
-
+    // Jumping
+    this.anims.create({
+        key: 'walk',
+        frames: this.anims.generateFrameNumbers('player', { start: 16, end: 23 }),
+        frameRate: 10,
+        repeat: 0
+    });
   
   // Camera follows player
   this.cameras.main.startFollow(player);
@@ -66,11 +90,38 @@ function create() {
 }
 
 function update() {
+  const speed = 200;
+  let moving = false; // Track if any key is pressed
+
   player.setVelocity(0);
 
-  if (cursors.left.isDown) player.setVelocityX(-200);
-  else if (cursors.right.isDown) player.setVelocityX(200);
+  // Horizontal movement
+  if (cursors.left.isDown) {
+    player.setVelocityX(-speed);
+    player.flipX = true;
+    moving = true;
+  } 
+  else if (cursors.right.isDown) {
+    player.setVelocityX(speed);
+    player.flipX = false;
+    moving = true;
+  }
 
-  if (cursors.up.isDown) player.setVelocityY(-200);
-  else if (cursors.down.isDown) player.setVelocityY(200);
+  // Vertical movement
+  if (cursors.up.isDown) {
+    player.setVelocityY(-speed);
+    moving = true;
+  } 
+  else if (cursors.down.isDown) {
+    player.setVelocityY(speed);
+    moving = true;
+  }
+
+  // Animation handling
+  if (moving) {
+    player.anims.play('walk', true);
+  } else {
+    player.anims.play('tail', true);
+  }
+  
 }
