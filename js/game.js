@@ -61,9 +61,9 @@ function create() {
 function update() {
   player.setVelocity(0);
 
-  if (cursors.left.isDown) player.setVelocityX(-160);
-  else if (cursors.right.isDown) player.setVelocityX(160);
+  if (cursors.left.isDown) player.setVelocityX(-200);
+  else if (cursors.right.isDown) player.setVelocityX(200);
 
-  if (cursors.up.isDown) player.setVelocityY(-160);
-  else if (cursors.down.isDown) player.setVelocityY(160);
+  if (cursors.up.isDown) player.setVelocityY(-200);
+  else if (cursors.down.isDown) player.setVelocityY(200);
 }
